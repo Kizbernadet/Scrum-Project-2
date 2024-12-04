@@ -1,55 +1,60 @@
-// Fonction principale pour charger les produits
-async function loadProducts() {
-    try {
-      // Étape 1 : Envoyer une requête pour récupérer les produits depuis l'API
-      const response = await fetch("https://api.example.com/products");
-  
-      // Vérification si la réponse est valide
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des produits");
-      }
-  
-      // Étape 2 : Convertir la réponse en JSON
-      const products = await response.json();
+// URL de l'API
+const api_url = "http://localhost:3000/api/products";
 
-      console.log(products);
-  
-      // Étape 3 : Sélectionner le conteneur HTML où afficher les produits
-      const productContainer = document.getElementById("items");
-  
-      // Étape 4 : Parcourir la liste des produits et générer les éléments HTML
-      products.forEach(product => {
-        // Créer un conteneur pour un produit
-        const productDiv = document.createElement("div");
-        productDiv.className = "product"; // Ajouter une classe CSS
-  
-        // Ajouter une image du produit
-        const productImg = document.createElement("img");
-        productImg.src = product.image; // URL de l'image
-        productImg.alt = product.name; // Texte alternatif
-  
-        // Ajouter un titre pour le produit
-        const productTitle = document.createElement("h3");
-        productTitle.textContent = product.name; // Nom du produit
-  
-        // Ajouter l'image et le titre au conteneur produit
-        productDiv.appendChild(productImg);
-        productDiv.appendChild(productTitle);
-  
-        // Ajouter le conteneur produit au conteneur principal
-        productContainer.appendChild(productDiv);
-      });
-    } catch (error) {
-      // Étape 5 : Gérer les erreurs en affichant un message dans la console
-      console.error("Erreur :", error);
-  
-      // Afficher un message sur la page
-      const productContainer = document.getElementById("productContainer");
-      const errorMessage = document.createElement("p");
-      errorMessage.textContent = "Impossible de charger les produits. Veuillez réessayer plus tard.";
-      productContainer.appendChild(errorMessage);
-    }
-  }
-  
-  // Appeler la fonction pour charger les produits
-  loadProducts();
+// Récupérer l'URL actuelle
+const currentUrl = window.location.href;
+
+// Créer un objet URL pour manipuler l'URL
+const url = new URL(currentUrl);
+
+// Extraire le paramètre "id" de l'URL
+const productId = url.searchParams.get("id");
+
+console.log("ID récupéré :", productId);
+
+// Sélectionner le conteneur principal
+const productContainer = document.getElementById("items");
+
+const newUrl = `http://localhost:3000/api/products/${productId}`;
+
+// Vérifier que l'ID est présent
+if (productId) {
+  // Récupérer les données de l'API
+  fetch(newUrl)
+    .then((response) => response.json())
+    .then((data) => {
+
+      console.log(data)
+      // // Trouver le produit correspondant à l'ID
+      // const product = data;
+
+      // if (product) {
+      //   // Construire l'élément HTML avec le modèle
+      //   const productHTML = `
+      //     <div class="item__img">
+      //       <img src="${product.imageUrl}" alt="${product.altTxt}">
+      //     </div>
+      //     <div class="item__content__titlePrice">
+      //       <h1 id="title">${product.name}</h1>
+      //       <p>Prix : <span id="price">${product.price}</span>€</p>
+      //     </div>
+      //     <div class="item__content__description">
+      //       <p>${product.description}</p>
+      //     </div>
+      //   `;
+
+      //   // Ajouter l'élément au conteneur
+      //   productContainer.innerHTML = productHTML;
+      // } else {
+      //   console.error("Produit non trouvé !");
+      //   productContainer.innerHTML = `<p>Produit introuvable.</p>`;
+      // }
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la récupération des produits :", error);
+      productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
+    });
+} else {
+  console.error("Aucun ID spécifié dans l'URL !");
+  productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
+}
