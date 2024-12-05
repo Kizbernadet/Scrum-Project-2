@@ -7,7 +7,6 @@ const productContainer = document.getElementById("items");
 fetch(api_url)
   .then((response) => response.json())
   .then((data) => {
-    console.log(data)
     // Parcourez chaque produit et créez le HTML correspondant
     data.forEach((product) => {
       // Construire l'élément HTML avec le modèle

@@ -1,19 +1,27 @@
-// URL de l'API
-const api_url = "http://localhost:3000/api/products";
-
 // Récupérer l'URL actuelle
 const currentUrl = window.location.href;
+console.log("URL actuelle :", currentUrl);
 
 // Créer un objet URL pour manipuler l'URL
 const url = new URL(currentUrl);
 
 // Extraire le paramètre "id" de l'URL
 const productId = url.searchParams.get("id");
-
 console.log("ID récupéré :", productId);
 
 // Sélectionner le conteneur principal
-const productContainer = document.getElementById("items");
+const productContainer = document.querySelector(".item");
+
+// usable variables
+let productImageContainer = document.querySelector(".item_img");
+let title = document.querySelector("#title");
+let price = document.querySelector("#price");
+let description = document.querySelector("#description");
+let colors = document.querySelector("#colors");
+
+let addToCart = document.querySelector("#addToCart");
+let chosen_quantity = document.querySelector("#quantity");
+
 
 const newUrl = `http://localhost:3000/api/products/${productId}`;
 
@@ -23,32 +31,9 @@ if (productId) {
   fetch(newUrl)
     .then((response) => response.json())
     .then((data) => {
-
-      console.log(data)
-      // // Trouver le produit correspondant à l'ID
-      // const product = data;
-
-      // if (product) {
-      //   // Construire l'élément HTML avec le modèle
-      //   const productHTML = `
-      //     <div class="item__img">
-      //       <img src="${product.imageUrl}" alt="${product.altTxt}">
-      //     </div>
-      //     <div class="item__content__titlePrice">
-      //       <h1 id="title">${product.name}</h1>
-      //       <p>Prix : <span id="price">${product.price}</span>€</p>
-      //     </div>
-      //     <div class="item__content__description">
-      //       <p>${product.description}</p>
-      //     </div>
-      //   `;
-
-      //   // Ajouter l'élément au conteneur
-      //   productContainer.innerHTML = productHTML;
-      // } else {
-      //   console.error("Produit non trouvé !");
-      //   productContainer.innerHTML = `<p>Produit introuvable.</p>`;
-      // }
+        title.textContent = data.name;
+        price.textContent = data.price;
+        description.textContent = data.description;
     })
     .catch((error) => {
       console.error("Erreur lors de la récupération des produits :", error);
@@ -58,3 +43,4 @@ if (productId) {
   console.error("Aucun ID spécifié dans l'URL !");
   productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
 }
+

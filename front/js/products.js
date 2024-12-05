@@ -12,6 +12,17 @@ console.log("ID récupéré :", productId);
 // Sélectionner le conteneur principal
 const productContainer = document.querySelector(".item");
 
+// usable variables
+let productImageContainer = document.querySelector(".item__img");
+let title = document.querySelector("#title");
+let price = document.querySelector("#price");
+let description = document.querySelector("#description");
+let colors = document.querySelector("#colors");
+
+let addToCart = document.querySelector("#addToCart");
+let chosen_quantity = document.querySelector("#quantity");
+
+
 const newUrl = `http://localhost:3000/api/products/${productId}`;
 
 // Vérifier que l'ID est présent
@@ -20,32 +31,16 @@ if (productId) {
   fetch(newUrl)
     .then((response) => response.json())
     .then((data) => {
-
-      console.log(data)
-      // Trouver le produit correspondant à l'ID
-      const product = data;
-
-      if (product) {
-        // Construire l'élément HTML avec le modèle
-        const productHTML = `
-          <div class="item__content__titlePrice">
-            <h1 id="title">${product.name}</h1>
-            <p>Prix : <span id="price">${product.price}</span>€</p>
-          </div>
-          <div class="item__content__description">
-            <p>${product.description}</p>
-          </div>
-        `;
-        // Ajouter l'élément au conteneur
-        productContainer.innerHTML = productHTML;
-      } else {
-        console.error("Produit non trouvé !");
-        productContainer.innerHTML = `<p>Produit introuvable.</p>`;
-      }
+        title.textContent = data.name;
+        price.textContent = data.price;
+        description.textContent = data.description;
+        productImageContainer.innerHTML=`
+          <img src="${data.imageUrl}" alt="${data.altTxt}">
+        `
     })
     .catch((error) => {
       console.error("Erreur lors de la récupération des produits :", error);
-      productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
+      //productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
     });
 } else {
   console.error("Aucun ID spécifié dans l'URL !");
