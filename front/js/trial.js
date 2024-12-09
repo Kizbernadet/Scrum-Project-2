@@ -13,7 +13,7 @@ console.log("ID récupéré :", productId);
 const productContainer = document.querySelector(".item");
 
 // usable variables
-let productImageContainer = document.querySelector(".item_img");
+let productImageContainer = document.querySelector(".item__img");
 let title = document.querySelector("#title");
 let price = document.querySelector("#price");
 let description = document.querySelector("#description");
@@ -34,13 +34,15 @@ if (productId) {
         title.textContent = data.name;
         price.textContent = data.price;
         description.textContent = data.description;
+        productImageContainer.innerHTML=`
+          <img src="${data.imageUrl}" alt="${data.altTxt}">
+        `
     })
     .catch((error) => {
       console.error("Erreur lors de la récupération des produits :", error);
-      productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
+      //productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
     });
 } else {
   console.error("Aucun ID spécifié dans l'URL !");
   productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
 }
-
