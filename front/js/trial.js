@@ -1,48 +1,41 @@
-// Récupérer l'URL actuelle
-const currentUrl = window.location.href;
-console.log("URL actuelle :", currentUrl);
+// Gestion de l'ajout au panier
+addToCart.addEventListener("click", function () {
+  // Récupérer les informations du produit sélectionné
+  const selectedColor = colors.value; // Couleur choisie dans la liste déroulante
+  const selectedQuantity = parseInt(chosen_quantity.value, 10); // Quantité saisie dans le champ input
 
-// Créer un objet URL pour manipuler l'URL
-const url = new URL(currentUrl);
+  // Vérifier que les informations sont valides
+  if (!selectedColor || selectedQuantity <= 0 || isNaN(selectedQuantity)) {
+    alert("Veuillez sélectionner une couleur et une quantité valide.");
+    return; // Ne pas continuer si les données sont invalides
+  }
 
-// Extraire le paramètre "id" de l'URL
-const productId = url.searchParams.get("id");
-console.log("ID récupéré :", productId);
+  // Structure de l'objet produit
+  const productToAdd = {
+    id: productId, // Récupéré depuis l'URL
+    color: selectedColor,
+    quantity: selectedQuantity,
+  };
 
-// Sélectionner le conteneur principal
-const productContainer = document.querySelector(".item");
+  // Vérifier si un panier existe déjà dans localStorage
+  let cart = JSON.parse(localStorage.getItem("cart")) || []; // Si aucun panier n'existe, initialise un tableau vide
 
-// usable variables
-let productImageContainer = document.querySelector(".item__img");
-let title = document.querySelector("#title");
-let price = document.querySelector("#price");
-let description = document.querySelector("#description");
-let colors = document.querySelector("#colors");
+  // Vérifier si le produit existe déjà dans le panier
+  const existingProductIndex = cart.findIndex(
+    (item) => item.id === productToAdd.id && item.color === productToAdd.color
+  );
 
-let addToCart = document.querySelector("#addToCart");
-let chosen_quantity = document.querySelector("#quantity");
+  if (existingProductIndex >= 0) {
+    // Si le produit existe déjà, augmenter la quantité
+    cart[existingProductIndex].quantity += productToAdd.quantity;
+  } else {
+    // Sinon, ajouter le produit au panier
+    cart.push(productToAdd);
+  }
 
+  // Sauvegarder le panier mis à jour dans localStorage
+  localStorage.setItem("cart", JSON.stringify(cart));
 
-const newUrl = `http://localhost:3000/api/products/${productId}`;
-
-// Vérifier que l'ID est présent
-if (productId) {
-  // Récupérer les données de l'API
-  fetch(newUrl)
-    .then((response) => response.json())
-    .then((data) => {
-        title.textContent = data.name;
-        price.textContent = data.price;
-        description.textContent = data.description;
-        productImageContainer.innerHTML=`
-          <img src="${data.imageUrl}" alt="${data.altTxt}">
-        `
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la récupération des produits :", error);
-      //productContainer.innerHTML = `<p>Erreur lors du chargement du produit.</p>`;
-    });
-} else {
-  console.error("Aucun ID spécifié dans l'URL !");
-  productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
-}
+  // Confirmer l'ajout à l'utilisateur
+  alert("Produit ajouté au panier avec succès !");
+});
