@@ -1,46 +1,31 @@
+// Affecter l'adresse de l'API dans une variable 
 const api_url = "http://localhost:3000/api/products";
 
-console.log(products);
-
-// Étape 3 : Sélectionner le conteneur HTML où afficher les produits
+// Recupérer la classe du conteneur principal
+// Sélectionnez le conteneur principal
 const productContainer = document.getElementById("items");
 
-// Étape 4 : Parcourir la liste des produits et générer les éléments HTML
-products.forEach(product => {
-
-  // Créer un conteneur pour un produit
-  const productDiv = document.createElement("div");
-  productDiv.className = "product"; // Ajouter une classe CSS
-
-  // Ajouter une image du produit
-  const productImg = document.createElement("img");
-  productImg.src = product.image; // URL de l'image
-  productImg.alt = product.name; // Texte alternatif
-
-  // Ajouter un titre pour le produit
-  const productTitle = document.createElement("h3");
-  productTitle.textContent = product.name; // Nom du produit
-
-  // Ajouter l'image et le titre au conteneur produit
-  productDiv.appendChild(productImg);
-  productDiv.appendChild(productTitle);
-
-  // Ajouter le conteneur produit au conteneur principal
-  productContainer.appendChild(productDiv);
-    
-})
-.catch (error) {
-    // Étape 5 : Gérer les erreurs en affichant un message dans la console
-    console.error("Erreur :", error);
-
-    // Afficher un message sur la page
-    const productContainer = document.getElementById("productContainer");
-    const errorMessage = document.createElement("p");
-    errorMessage.textContent = "Impossible de charger les produits. Veuillez réessayer plus tard.";
-    productContainer.appendChild(errorMessage);
-  }
-}
-  
-// Appeler la fonction pour charger les produits
-loadProducts();
-  
+// Récupérez les données de l'API
+fetch(api_url)
+  .then((response) => response.json())
+  .then((data) => {
+    // Parcourez chaque produit et créez le HTML correspondant
+    data.forEach((product) => {
+      // Construire l'élément HTML avec le modèle
+      const productHTML = `
+        <a href="./product.html?id=${product._id}">
+          <article>
+            <img src="${product.imageUrl}" alt="${product.altTxt}">
+            <h3 class="productName">${product.name}</h3>
+            <p class="productDescription">${product.description}</p>
+          </article>
+        </a>
+      `;
+      // Ajouter l'élément au conteneur
+      productContainer.innerHTML += productHTML;
+    });
+  })
+  // Code à exécuter en cas de la lever d'une erreur
+  .catch((error) => {
+    console.error("Erreur lors de la récupération des produits :", error);
+  });
