@@ -12,13 +12,15 @@ console.log("ID récupéré :", productId);
 // Sélectionner le conteneur principal
 const productContainer = document.querySelector(".item");
 
-// usable variables
+// variables utilisées pour récupérer les balises d'emplacement  
+// sur la page produit notamment l'image, titre, prix, description et couleurs
 let productImageContainer = document.querySelector(".item__img");
 let title = document.querySelector("#title");
 let price = document.querySelector("#price");
 let description = document.querySelector("#description");
 let colors = document.querySelector("#colors");
 
+// Sélectionner le bouton Ajouter à la carte par son identifiant
 let addToCart = document.querySelector("#addToCart");
 let chosen_quantity = document.querySelector("#quantity");
 
@@ -40,6 +42,8 @@ if (productId) {
         // Remplir les options de couleurs
         // Cette condition permet de vérifier si le tableau existe (data.colors) et (s'il n'est pas vide data.length > 0)
         if (data.colors && data.colors.length > 0) {
+
+          // forEach est une boucle qui permet de parcourir le tableau des couleurs disponibles pour chaque produit
           data.colors.forEach((color) => {
             const option = document.createElement("option");
             option.value = color;
@@ -47,7 +51,6 @@ if (productId) {
             colors.appendChild(option);
           });
         } else {
-
           console.warn("Aucune couleur disponible pour ce produit.");
         }
         })
@@ -59,3 +62,52 @@ if (productId) {
   console.error("Aucun ID spécifié dans l'URL !");
   productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
 }
+
+// Fonction permettant de récuperer les éléments du produit sélectionné
+addToCart.addEventListener("click", function(){
+  const productColor = colors.value;
+  const productQuantity = parseInt(chosen_quantity.value, 10);
+
+  // Verifier si les infos nécessaires sont présentes
+  if (!productId || !productColor || isNaN(productQuantity) || productQuantity <= 0){
+    alert("Veuillez sélectionner une quantité valide et une couleur. ");
+    return;
+  }
+  else{
+    // Créer un objet produit avec les informations 
+    const productDetails = {
+      id : productId, 
+      color : productColor, 
+      quantity : productQuantity
+    };
+
+    // Verification pour voir si cela à fonctionner 
+    console.log("Produit ajouté : ", productDetails);
+
+    // Verifier si un panier existe déjà dans localStorage et Si aucun panier vide n'exsite pas, 
+    // Initialse un tableau vide
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // Vérifier si le panier existe déjà dans le panier 
+    // existingProductIndex est une variable qui permet de déterminer l'exsitence des éléments
+    const existingProductIndex = cart.findIndex(
+      (item) => item.id === productDetails.id  && item.color === productDetails.color
+    );
+
+    if (existingProductIndex >= 0){
+      //Si le produit existe déjà , augmenter la quantité 
+      cart[existingProductIndex].quantity += productDetails.quantity;
+    }
+    else{
+      cart.push(productDetails);
+    }
+  }
+
+  // Sauvegarder le panier mis à jour dans localStorage
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  // Confirmer l'ajout à l'utilisateur 
+  alert("Produit ajouté au panier avec succès !");
+});
+
+
