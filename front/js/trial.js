@@ -21,7 +21,7 @@ addToCart.addEventListener("click", function () {
     let cart = JSON.parse(localStorage.getItem("cart")) || []; // Si aucun panier n'existe, initialise un tableau vide
   
     // Vérifier si le produit existe déjà dans le panier
-    const existingProdugit ctIndex = cart.findIndex(
+    const existingProductIndex = cart.findIndex(
       (item) => item.id === productToAdd.id && item.color === productToAdd.color
     );
   

@@ -27,6 +27,56 @@ let chosen_quantity = document.querySelector("#quantity");
 
 const newUrl = `http://localhost:3000/api/products/${productId}`;
 
+
+// Les fonctions Utilisées
+/**
+ * La fonction emptyCart() permet de créer un nouveau panier sous forme qui sera envoyer dans le localStorage
+ */
+function emptyCart(){
+  // Ajouter un panier comme étant un tableau qui contiendra les differents sous forme d'objets 
+  console.log("Panier Ajouté ....");
+  let cart = localStorage.setItem("cart", JSON.stringify([]));
+  return cart;
+}
+
+/**
+ * La fonction addProduct() gère l'ajout de nouveau produit dans le panier 
+ * @param {object} productToAdd Elle prend comme argument 
+ */
+function addProduct(productToAdd){
+  // Recuperer le panier puis y ajouter le produit sélectionné
+  let cart = JSON.parse(localStorage.getItem("cart"))
+
+  console.log(cart, typeof cart);
+
+  // Vérifier si le produit existe déjà dans le panier
+  const existingProductIndex = cart.findIndex(
+    (item) => item.id === productToAdd.id && item.color === productToAdd.color
+  );
+
+  console.log(existingProductIndex);
+
+  if (existingProductIndex >= 0) {
+    // Si le produit existe déjà, augmenter la quantité
+    cart[existingProductIndex].quantity = 0
+    cart[existingProductIndex].quantity += productToAdd.quantity;
+  } else {
+    // Sinon, ajouter le produit au panier
+    cart.push(productToAdd);
+  }
+
+  console.log(cart);
+
+  // Renvoyer le panier mis à jour dans le local Storage
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  // Confirmer l'ajout au panier 
+  alert("Produit ajouté au panier avec succès !");
+}
+
+
+
+//  Partie Principale du code 
 // Vérifier que l'ID est présent
 if (productId) {
   // Récupérer les données de l'API
@@ -63,51 +113,34 @@ if (productId) {
   productContainer.innerHTML = `<p>Aucun produit sélectionné.</p>`;
 }
 
+
+// Creation d'un panier vide sous de tableau 
+// Vérifier si un panier existe déjà dans localStorage
+let cart = JSON.parse(localStorage.getItem("cart")) || emptyCart();
+
 // Fonction permettant de récuperer les éléments du produit sélectionné
+// Lorsqu'on clique sur le bouton ajouter au panier 
 addToCart.addEventListener("click", function(){
   const productColor = colors.value;
   const productQuantity = parseInt(chosen_quantity.value, 10);
 
-  // Verifier si les infos nécessaires sont présentes
-  if (!productId || !productColor || isNaN(productQuantity) || productQuantity <= 0){
-    alert("Veuillez sélectionner une quantité valide et une couleur. ");
-    return;
+  // Vérifier que les informations sont valides
+  if (!productColor || productQuantity <= 0 || isNaN(productQuantity)) {
+    alert("Veuillez sélectionner une couleur et une quantité valide.");
+    return; // Ne pas continuer si les données sont invalides
   }
   else{
-    // Créer un objet produit avec les informations 
-    const productDetails = {
-      id : productId, 
-      color : productColor, 
-      quantity : productQuantity
-    };
-
-    // Verification pour voir si cela à fonctionner 
-    console.log("Produit ajouté : ", productDetails);
-
-    // Verifier si un panier existe déjà dans localStorage et Si aucun panier vide n'exsite pas, 
-    // Initialse un tableau vide
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    // Vérifier si le panier existe déjà dans le panier 
-    // existingProductIndex est une variable qui permet de déterminer l'exsitence des éléments
-    const existingProductIndex = cart.findIndex(
-      (item) => item.id === productDetails.id  && item.color === productDetails.color
-    );
-
-    if (existingProductIndex >= 0){
-      //Si le produit existe déjà , augmenter la quantité 
-      cart[existingProductIndex].quantity += productDetails.quantity;
-    }
-    else{
-      cart.push(productDetails);
-    }
+    console.log("Les valeurs sont valides , objet récupéré ... !")
   }
 
-  // Sauvegarder le panier mis à jour dans localStorage
-  localStorage.setItem("cart", JSON.stringify(cart));
+  // Structure de l'objet produit
+  const productToAdd = {
+    id: productId, // Récupéré depuis l'URL
+    color: productColor,
+    quantity: productQuantity,
+  };
 
-  // Confirmer l'ajout à l'utilisateur 
-  alert("Produit ajouté au panier avec succès !");
+  console.log("Objet Récupéré : ", productToAdd);
+
+  addProduct(productToAdd);
 });
-
-
