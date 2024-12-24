@@ -8,7 +8,7 @@ const api_url = "http://localhost:3000/api/products";
 // Variable de stockage de la localStorage 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-// Selectionne la balise total__price 
+// Selectionne la balise total__price pour la gestion du montant total
 const cartTotal = document.querySelector("#totalPrice");
 
 // Variable pour stocker le montant total
@@ -20,8 +20,31 @@ const cartQuantity = document.querySelector("#totalQuantity");
 // Variable pour stocker la quantité totale de produits
 let totalQuantity = 0;
 
-// Selectionne la balise input pour gérer la quantité de produit 
+// Selectionne la balise input pour supprimer un produit
 //const itemQuantity = document.querySelectorAll(".itemQuantity");
+const deleteItem = document.querySelectorAll(".deleteItem");
+
+
+// Evenement pour supprimer un produit du panier
+deleteItem.forEach((button) => {
+    button.addEventListener("click", (event) => {
+        // Selectionne l'article parent de l'élément cliqué
+        const item = event.target.closest(".cart__item");
+    
+        // Selectionne l'identifiant et la couleur de l'article
+        const id = item.getAttribute("data-id");
+        const color = item.getAttribute("data-color");
+    
+        // Retire l'article du panier
+        cart = cart.filter((item) => item.id !== id || item.color !== color);
+    
+        // Met à jour le panier dans la localStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+    
+        // Rafraichit la page
+        location.reload();
+    });
+});
 
 
 

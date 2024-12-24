@@ -45,16 +45,12 @@ function emptyCart(){
  */
 function addProduct(productToAdd){
   // Recuperer le panier puis y ajouter le produit sélectionné
-  let cart = JSON.parse(localStorage.getItem("cart"))
-
-  console.log(cart, typeof cart);
+  let cart = JSON.parse(localStorage.getItem("cart"));
 
   // Vérifier si le produit existe déjà dans le panier
   const existingProductIndex = cart.findIndex(
     (item) => item.id === productToAdd.id && item.color === productToAdd.color
   );
-
-  console.log(existingProductIndex);
 
   if (existingProductIndex >= 0) {
     // Si le produit existe déjà, augmenter la quantité
@@ -64,8 +60,6 @@ function addProduct(productToAdd){
     // Sinon, ajouter le produit au panier
     cart.push(productToAdd);
   }
-
-  console.log(cart);
 
   // Renvoyer le panier mis à jour dans le local Storage
   localStorage.setItem("cart", JSON.stringify(cart));
