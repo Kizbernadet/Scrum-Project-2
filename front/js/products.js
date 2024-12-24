@@ -74,8 +74,6 @@ function addProduct(productToAdd){
   alert("Produit ajouté au panier avec succès !");
 }
 
-
-
 //  Partie Principale du code 
 // Vérifier que l'ID est présent
 if (productId) {
@@ -117,6 +115,8 @@ if (productId) {
 // Creation d'un panier vide sous de tableau 
 // Vérifier si un panier existe déjà dans localStorage
 let cart = JSON.parse(localStorage.getItem("cart")) || emptyCart();
+
+console.log(typeof cart);
 
 // Fonction permettant de récuperer les éléments du produit sélectionné
 // Lorsqu'on clique sur le bouton ajouter au panier 
