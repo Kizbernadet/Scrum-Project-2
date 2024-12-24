@@ -20,31 +20,33 @@ const cartQuantity = document.querySelector("#totalQuantity");
 // Variable pour stocker la quantité totale de produits
 let totalQuantity = 0;
 
-// Selectionne la balise input pour supprimer un produit
-//const itemQuantity = document.querySelectorAll(".itemQuantity");
-const deleteItem = document.querySelectorAll(".deleteItem");
 
+// Action de supprimer un produit
+cartContainer.addEventListener(
+    "click", (event) => {
+        // event.target ne permet d'identifier la balise sur laquelle je clique
+        const tag = event.target
 
-// Evenement pour supprimer un produit du panier
-deleteItem.forEach((button) => {
-    button.addEventListener("click", (event) => {
-        // Selectionne l'article parent de l'élément cliqué
-        const item = event.target.closest(".cart__item");
-    
-        // Selectionne l'identifiant et la couleur de l'article
-        const id = item.getAttribute("data-id");
-        const color = item.getAttribute("data-color");
-    
-        // Retire l'article du panier
-        cart = cart.filter((item) => item.id !== id || item.color !== color);
-    
-        // Met à jour le panier dans la localStorage
-        localStorage.setItem("cart", JSON.stringify(cart));
-    
-        // Rafraichit la page
-        location.reload();
-    });
-});
+        if (tag.className === "deleteItem"){
+            const cartItem = event.target.closest(".cart__item");
+            
+            const id = cartItem.getAttribute("data-id");
+            const color = cartItem.getAttribute("data-color");
+
+            console.log(id, color);
+
+            cartItem.remove()
+
+            let cart = JSON.parse(localStorage.getItem("cart"))
+
+            cart = cart.filter((item) => id)
+
+            console.log(cart);
+
+        }
+        
+    }
+)
 
 
 
@@ -71,11 +73,11 @@ if (cart.length === 0) {
             // Ajouter ce prix au montant total
             totalAmount += productPrice;
 
-            console.log(totalAmount)
+            // console.log(totalAmount)
   
             // Ajouter les éléments au DOM
             cartContainer.innerHTML += `
-                <article class="cart__item" data-id="${data.id}" data-color="${selectedColor}">
+                <article class="cart__item" data-id="${item.id}" data-color="${selectedColor}">
                 <div class="cart__item__img">
                     <img src="${data.imageUrl}" alt="${data.altTxt}">
                 </div>
