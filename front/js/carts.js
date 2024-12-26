@@ -20,31 +20,89 @@ const cartQuantity = document.querySelector("#totalQuantity");
 // Variable pour stocker la quantité totale de produits
 let totalQuantity = 0;
 
+// Variable de stockage des prix des produits 
+allPrices = {};
+
+function updateCart(cart, price){
+    // Boucle pour chaque article dans le panier pour calculer la quantité totale
+    console.log("Test 3", cart)
+
+    // Reinitalise la quantité totale
+    totalQuantity = "";
+    for (item of cart) {
+        totalQuantity += item.quantity;
+    }
+
+    // Afficher le nombre total d'articles dans le panier
+    console.log("Test 4", totalQuantity);
+    cartQuantity.textContent = totalQuantity;
+
+    // Mise à jour du montant total
+    cartTotal.textContent = totalPrice(price);
+}
+
+function totalPrice(objet){
+    let total = 0;
+    for (item of objet){
+        total += item.price * item.quantity;
+    }
+}
 
 // Action de supprimer un produit
 cartContainer.addEventListener(
     "click", (event) => {
         // event.target ne permet d'identifier la balise sur laquelle je clique
-        const tag = event.target
+        const tag = event.target;
+
+        // Récupère la balise article la plus proche de la balise cliquée
+        const cartItem = event.target.closest(".cart__item");
+
+        // Récupère l'attribut data-id et data-color de l'article le plus proche
+        const id = cartItem.getAttribute("data-id");
+        const color = cartItem.getAttribute("data-color");
+
+        // Récupère le contenu actuel du localStorage
+        let cart = JSON.parse(localStorage.getItem("cart"))
+        console.log("Test 1", cart)
+
 
         if (tag.className === "deleteItem"){
-            const cartItem = event.target.closest(".cart__item");
-            
-            const id = cartItem.getAttribute("data-id");
-            const color = cartItem.getAttribute("data-color");
 
-            console.log(id, color);
-
+            // Supprime l'article le plus proche de la balise cliquée
             cartItem.remove()
 
-            let cart = JSON.parse(localStorage.getItem("cart"))
+            // Supprimer le produit éffacé via un trie puis récupère un tableau filtré
+            cart = cart.filter((item) => item.id != id || item.color != color);
 
-            cart = cart.filter((item) => id)
+            // Renvoie le tableau filtré dans le localStorage
+            localStorage.setItem("cart", JSON.stringify(cart));
 
-            console.log(cart);
+            // Rafraichit la page pour appliquer les mo
+            //location.reload();
+        }
+
+        else if (tag.className === 'itemQuantity'){
+            // Récupère la nouvelle quantité de l'article
+            const newQuantity = tag.value;
+
+            for (item of cart){
+                if (item.id == id && item.color == color){
+                    item.quantity = newQuantity;
+                }
+            }
 
         }
         
+        // Mise à jour du panier
+        totalQuantity = "";
+        for (item of cart) {
+            totalQuantity += item.quantity;
+        }
+
+        // Afficher le nombre total d'articles dans le panier
+        console.log("Test 4", totalQuantity);
+        cartQuantity.textContent = totalQuantity;
+            
     }
 )
 
@@ -59,6 +117,9 @@ if (cart.length === 0) {
       // Sélectionner la couleur choisie pour chaque produit et la quantité
       let selectedColor = item.color;
       let productQuantity = item.quantity;
+
+      // Ajout des prix des produits dans un objet allPrices
+      allPrices[item.id] = item.price;
   
       // Sélectionner l'URL du produit
       const productUrl = `http://localhost:3000/api/products/${item.id}`;
