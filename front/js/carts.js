@@ -1,54 +1,42 @@
-// Les variables utilisées 
-// Sélectionne la balise container dans la page cart.html
-const cartContainer = document.querySelector("#cart__items");
-
-// API URL
-const api_url = "http://localhost:3000/api/products";
-
+// Les variables utilisées
 // Variable de stockage de la localStorage 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // Selectionne la balise total__price pour la gestion du montant total
 const cartTotal = document.querySelector("#totalPrice");
 
-// Variable pour stocker le montant total
-let totalAmount = 0;
-
 // Sélectionne la balise cartQuantity
 const cartQuantity = document.querySelector("#totalQuantity");
 
-// Variable pour stocker la quantité totale de produits
+// Variable pour stocker le montant total
+let totalAmount = 0;
 let totalQuantity = 0;
 
-// Variable de stockage des prix des produits 
-allPrices = {};
+// Sélectionne la balise container dans la page cart.html
+const cartContainer = document.querySelector("#cart__items");
 
-function updateCart(cart, price){
-    // Boucle pour chaque article dans le panier pour calculer la quantité totale
-    console.log("Test 3", cart)
+// Liste pour stocker les promesses fetch
+const fetchPromises = [];
 
-    // Reinitalise la quantité totale
-    totalQuantity = "";
-    for (item of cart) {
-        totalQuantity += item.quantity;
-    }
+// Assure-toi que allPrices est vide avant d'ajouter les prix
+let productPrices = {};
 
-    // Afficher le nombre total d'articles dans le panier
-    console.log("Test 4", totalQuantity);
-    cartQuantity.textContent = totalQuantity;
-
-    // Mise à jour du montant total
-    cartTotal.textContent = totalPrice(price);
+// Les fonctions Utilisées 
+function itemQuantity(total, cart){
+    total = 0;
+    total = cart.reduce((acc, item) => acc + parseInt(item.quantity), 0);
+    console.log(total);
+    return total ;
 }
 
-function totalPrice(objet){
-    let total = 0;
-    for (item of objet){
-        total += item.price * item.quantity;
-    }
-}
+// Gestion des Evenements 
 
-// Action de supprimer un produit
+// Action de supprimer un produit et de modifier la quantité
+/**
+ * cartContainer.addEventlistener écoute toutes les actions faites sur le panier et effectue les actions suivantes en fonction
+ * de la balise cliquée, elle distingue chaque balise via le event.target ou par le type d'event récupéré
+ * @param {Event} event correspond au type d'événement qui se produit sur le panier
+ */
 cartContainer.addEventListener(
     "click", (event) => {
         // event.target ne permet d'identifier la balise sur laquelle je clique
@@ -60,121 +48,147 @@ cartContainer.addEventListener(
         // Récupère l'attribut data-id et data-color de l'article le plus proche
         const id = cartItem.getAttribute("data-id");
         const color = cartItem.getAttribute("data-color");
+        console.log(id, color)
 
         // Récupère le contenu actuel du localStorage
         let cart = JSON.parse(localStorage.getItem("cart"))
-        console.log("Test 1", cart)
 
 
         if (tag.className === "deleteItem"){
+            /**
+             * Cette partie correspond à l'action de supprimer un produit du panier, l'event récupéré est le clic sur la balise de classe 
+             * deleteItem, la méthode .remove() permet de supprimer cet élément du DOM, puis on récupère un nouveau panier
+             * en filtrant cart via filter avec la condition item.id != id || item.color != color pour effacer l'élément supprimé du panier 
+             * , cart est ensuite renvoyé dans le localStorage
+             */
 
             // Supprime l'article le plus proche de la balise cliquée
             cartItem.remove()
 
+            /**
+             * Les variables product permet de récupérer les infos de l'élt supprimé dans le panier la méthode filtrer dans l'objectif que 
+             * récupérer la valeur de sa quantité et son id puis ensuite on calcule le montan total de l'élément supprimé dans 
+             * en faisant [quantity * price] , le prix est récupéré grâce au tableau productPrices[id] avec id et la quantité via 
+             * product[0].quantity puis on soustrait le résultat du montant total des produits puis nouveau total montant est mise à jour.
+             */
+            let product = [];
+            let deleteAmount  = 0;
+
             // Supprimer le produit éffacé via un trie puis récupère un tableau filtré
+            product = cart.filter((item) => item.id === id && item.color === color);
             cart = cart.filter((item) => item.id != id || item.color != color);
+
+            deleteAmount = product[0].quantity * productPrices[product[0].id];
+            totalAmount -= deleteAmount;
 
             // Renvoie le tableau filtré dans le localStorage
             localStorage.setItem("cart", JSON.stringify(cart));
 
-            // Rafraichit la page pour appliquer les mo
-            //location.reload();
+            // Mise à jour de la quantité et du montant total des produits
+            cartQuantity.textContent  = itemQuantity(totalQuantity, cart);
+            cartTotal.textContent = totalAmount;
+
         }
 
         else if (tag.className === 'itemQuantity'){
             // Récupère la nouvelle quantité de l'article
             const newQuantity = tag.value;
+            let oldQuantity = 0;
+            console.log(newQuantity);
 
             for (item of cart){
                 if (item.id == id && item.color == color){
-                    item.quantity = newQuantity;
+                    oldQuantity = item.quantity;
                 }
             }
 
-        }
-        
-        // Mise à jour du panier
-        totalQuantity = "";
-        for (item of cart) {
-            totalQuantity += item.quantity;
-        }
+            if (oldQuantity > newQuantity){
+              deleteAmount = oldQuantity - newQuantity;
+            }
+            else if(oldQuantity === newQuantity){
+              deleteAmount = 0;
+            }
+            else if(oldQuantity < newQuantity){
+              deleteAmount = newQuantity - oldQuantity;
+            }
+            console.log("deleteAmount", deleteAmount)
+            console.log("Before TotalQuantity : ", totalQuantity)
+            totalQuantity += deleteAmount;
+            console.log("After TotalQuantity : ", totalQuantity)
+             
+            // Mise à jour de la quantité totale
+            // console.log("before quantity", totalQuantity);
+            // console.log("before quantity", totalQuantity);
 
-        // Afficher le nombre total d'articles dans le panier
-        console.log("Test 4", totalQuantity);
-        cartQuantity.textContent = totalQuantity;
+            // Afficher le nombre total d'articles dans le panier
+            cartQuantity.textContent = totalQuantity;
+        }
             
     }
 )
 
-
-
-// Main code 
+// Vérifie si le panier est vide
 if (cart.length === 0) {
-    cartContainer.innerHTML = "<p>Votre panier est vide.</p>";
-  } else {
-    for (item of cart) {
-  
-      // Sélectionner la couleur choisie pour chaque produit et la quantité
-      let selectedColor = item.color;
-      let productQuantity = item.quantity;
+  cartContainer.innerHTML = "<p>Votre panier est vide.</p>";
+} else {
+  // Parcours chaque produit du panier
+  for (const item of cart) {
+    // Construire l'URL pour chaque produit
+    const productUrl = `http://localhost:3000/api/products/${item.id}`;
 
-      // Ajout des prix des produits dans un objet allPrices
-      allPrices[item.id] = item.price;
-  
-      // Sélectionner l'URL du produit
-      const productUrl = `http://localhost:3000/api/products/${item.id}`;
-  
-      fetch(productUrl)
-        .then(response => response.json())
-        .then((data) => {
+    // Ajouter chaque fetch à la liste des promesses
+    const fetchPromise = fetch(productUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        // Remplir allPrices avec les données récupérées
+        productPrices[item.id] = data.price;
 
-            // Calculer le prix total pour ce produit
-            let productPrice = data.price * productQuantity;
-    
-            // Ajouter ce prix au montant total
-            totalAmount += productPrice;
-
-            // console.log(totalAmount)
-  
-            // Ajouter les éléments au DOM
-            cartContainer.innerHTML += `
-                <article class="cart__item" data-id="${item.id}" data-color="${selectedColor}">
-                <div class="cart__item__img">
-                    <img src="${data.imageUrl}" alt="${data.altTxt}">
+        // Ajouter les articles au DOM
+        cartContainer.innerHTML += `
+          <article class="cart__item" data-id="${item.id}" data-color="${item.color}">
+            <div class="cart__item__img">
+              <img src="${data.imageUrl}" alt="${data.altTxt}">
+            </div>
+            <div class="cart__item__content">
+              <div class="cart__item__content__description">
+                <h2>${data.name}</h2>
+                <p>${item.color}</p>
+                <p>${data.price} €</p>
+              </div>
+              <div class="cart__item__content__settings">
+                <div class="cart__item__content__settings__quantity">
+                  <p>Qté : ${item.quantity}</p>
+                  <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
                 </div>
-                <div class="cart__item__content">
-                    <div class="cart__item__content__description">
-                    <h2>${data.name}</h2>
-                    <p>${selectedColor}</p>
-                    <p>${data.price} €</p>
-                    </div>
-                    <div class="cart__item__content__settings">
-                    <div class="cart__item__content__settings__quantity">
-                        <p>Qté : ${productQuantity}</p>
-                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productQuantity}">
-                    </div>
-                    <div class="cart__item__content__settings__delete">
-                        <p class="deleteItem">Supprimer</p>
-                    </div>
-                    </div>
+                <div class="cart__item__content__settings__delete">
+                  <p class="deleteItem">Supprimer</p>
                 </div>
-                </article>
-            `;
-    
-            // Afficher le montant total après avoir ajouté tous les produits
-            cartTotal.textContent = totalAmount;
+              </div>
+            </div>
+          </article>
+        `;
 
-            })
-            .catch((error) => {
-                console.error("Erreur lors de la récupération des produits :", error);
-            });
-        }
-    
-        // // Boucle pour chaque article dans le panier pour calculer la quantité totale
-        for (item of cart) {
-         totalQuantity += item.quantity;
-         }
-    
-        // Afficher le nombre total d'articles dans le panier
-        cartQuantity.textContent = totalQuantity;
+        // Mettre à jour le total
+        totalAmount += data.price * item.quantity;
+        cartTotal.textContent = totalAmount;
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la récupération des produits :", error);
+      });
+
+    // Ajouter la promesse fetch dans le tableau
+    fetchPromises.push(fetchPromise);
   }
+
+  // Attendre que toutes les promesses soient terminées
+  Promise.all(fetchPromises)
+    .then(() => {
+      // Mise à jour finale du nombre total d'articles
+      totalQuantity = cart.reduce((acc, item) => acc + parseInt(item.quantity), 0);
+      cartQuantity.textContent = totalQuantity;
+    })
+    .catch((error) => {
+      console.error("Erreur dans Promise.all :", error);
+    });
+}
+
