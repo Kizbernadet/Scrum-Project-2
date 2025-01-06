@@ -93,35 +93,62 @@ cartContainer.addEventListener(
         else if (tag.className === 'itemQuantity'){
             // Récupère la nouvelle quantité de l'article
             const newQuantity = tag.value;
-            let oldQuantity = 0;
-            console.log(newQuantity);
 
+            /** Rôles des variables 
+             * oldQuantity recupère la valeur de la quantité avant sa modification
+             * newQuantity récupère la valeur de la nouvelle quantité 
+             * amount_changed stocke la valeur qui sera ajouté ou enlevé du montant total des produits
+             * quantity_changed stocke la diffence entre l'ancienne et la nouvelle quantité puis celle-ci est ajouté ou enlevé de la quantité total
+             */
+            let oldQuantity = 0;
+            let amount_changed = 0;
+            let quantity_changed = 0;
+
+
+            /**
+             * Modifie la valeur de la quantité du produit dans le panier grâce à son id 
+             */
             for (item of cart){
                 if (item.id == id && item.color == color){
                     oldQuantity = item.quantity;
+                    item.quantity = parseInt(newQuantity, 10);
                 }
             }
 
+            // Renvoie le tableau filtré dans le localStorage
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            console.log(totalAmount)
+
             if (oldQuantity > newQuantity){
-              deleteAmount = oldQuantity - newQuantity;
+              quantity_changed = oldQuantity - newQuantity;
+
+              // Mise à jour du montant total des produits 
+              amount_changed = quantity_changed * productPrices[id];
+              totalAmount -= amount_changed;
+
+              // Mise à jour de la quantité totale de produits
+              totalQuantity -= quantity_changed;
             }
             else if(oldQuantity === newQuantity){
-              deleteAmount = 0;
+              quantity_changed = 0;
             }
             else if(oldQuantity < newQuantity){
-              deleteAmount = newQuantity - oldQuantity;
-            }
-            console.log("deleteAmount", deleteAmount)
-            console.log("Before TotalQuantity : ", totalQuantity)
-            totalQuantity += deleteAmount;
-            console.log("After TotalQuantity : ", totalQuantity)
-             
-            // Mise à jour de la quantité totale
-            // console.log("before quantity", totalQuantity);
-            // console.log("before quantity", totalQuantity);
+              quantity_changed = newQuantity - oldQuantity;
 
-            // Afficher le nombre total d'articles dans le panier
+              // Mise à jour du montant total des produits 
+              amount_changed = quantity_changed * productPrices[id];
+              totalAmount += amount_changed;
+
+              // Mise à jour de la quantité totale de produits
+              totalQuantity += quantity_changed;
+            }
+
+
+            // Afficher le nombre total d'articles et le montant total dans le panier 
             cartQuantity.textContent = totalQuantity;
+            cartTotal.textContent = totalAmount;
+
         }
             
     }
