@@ -8,6 +8,9 @@ const cartTotal = document.querySelector("#totalPrice");
 // Sélectionne la balise cartQuantity
 const cartQuantity = document.querySelector("#totalQuantity");
 
+// Sélectionne la balise form pour la gestion du formulaire
+const orderForm = document.querySelector(".cart__order__form");
+
 // Variable pour stocker le montant total
 let totalAmount = 0;
 let totalQuantity = 0;
@@ -29,8 +32,8 @@ function itemQuantity(total, cart){
     return total ;
 }
 
-// Gestion des Evenements 
 
+// Gestion des Evenements 
 // Action de supprimer un produit et de modifier la quantité
 /**
  * cartContainer.addEventlistener écoute toutes les actions faites sur le panier et effectue les actions suivantes en fonction
@@ -153,6 +156,22 @@ cartContainer.addEventListener(
             
     }
 )
+
+// Gestion du formulaire
+orderForm.addEventListener("submit", (event) => {
+  
+  // Empêche l'envoi immédiat des données avant la vérification
+  event.preventDefault();
+
+  const formData = new FormData(event.currentTarget);
+  const values = [...formData.values()]
+  console.log(formData);
+  console.log(values);
+
+  // Conditions de vérification
+  // Condition 1 : Vérifier si le formData a une valeur vide
+  if(values.includes("")){}
+})
 
 // Vérifie si le panier est vide
 if (cart.length === 0) {
