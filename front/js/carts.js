@@ -32,7 +32,6 @@ function itemQuantity(total, cart){
     return total ;
 }
 
-
 // Gestion des Evenements 
 // Action de supprimer un produit et de modifier la quantité
 /**
@@ -65,7 +64,7 @@ cartContainer.addEventListener(
              * , cart est ensuite renvoyé dans le localStorage
              */
 
-            // Supprime l'article le plus proche de la balise cliquée
+            // Supprime l'article le plus proche de la balise cliquée du DOM
             cartItem.remove()
 
             /**
@@ -147,7 +146,6 @@ cartContainer.addEventListener(
               totalQuantity += quantity_changed;
             }
 
-
             // Afficher le nombre total d'articles et le montant total dans le panier 
             cartQuantity.textContent = totalQuantity;
             cartTotal.textContent = totalAmount;
@@ -163,15 +161,53 @@ orderForm.addEventListener("submit", (event) => {
   // Empêche l'envoi immédiat des données avant la vérification
   event.preventDefault();
 
-  const formData = new FormData(event.currentTarget);
-  const values = [...formData.values()]
-  console.log(formData);
-  console.log(values);
+  // Sélectionner les éléments 
+  const firstname = document.querySelector("#firstName").value;
+  const lastname = document.querySelector("#lastName").value;
+  const address = document.querySelector("#address").value;
+  const city = document.querySelector("#city").value;
+  const email = document.querySelector("#email").value;
 
-  // Conditions de vérification
-  // Condition 1 : Vérifier si le formData a une valeur vide
-  if(values.includes("")){}
+  let productsID = []
+
+  for(item of cart){
+    productsID.push(item.id)
+  }
+
+  console.log(productsID);
+
+  fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", 
+    },
+    body: JSON.stringify({
+      contact: {
+        firstName: firstname,
+        lastName: lastname,
+        address: address,
+        city: city,
+        email: email,
+      },
+      products: productsID,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP : ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((result) => {
+      window.
+      console.log("Commande réussie :", result);
+    })
+    .catch((error) => {
+      console.error("Erreur lors de l'envoi :", error);
+    });
 })
+
+
 
 // Vérifie si le panier est vide
 if (cart.length === 0) {
