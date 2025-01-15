@@ -21,7 +21,7 @@ const cartContainer = document.querySelector("#cart__items");
 // Liste pour stocker les promesses fetch
 const fetchPromises = [];
 
-// Assure-toi que allPrices est vide avant d'ajouter les prix
+// Dictionnaire pour stocker le prix des produits
 let productPrices = {};
 
 // Les fonctions Utilisées 
@@ -162,49 +162,72 @@ orderForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
   // Sélectionner les éléments 
-  const firstname = document.querySelector("#firstName").value;
-  const lastname = document.querySelector("#lastName").value;
-  const address = document.querySelector("#address").value;
-  const city = document.querySelector("#city").value;
-  const email = document.querySelector("#email").value;
+  const user_firstname = document.querySelector("#firstName").value;
+  const user_lastname = document.querySelector("#lastName").value;
+  const user_address = document.querySelector("#address").value;
+  const user_city = document.querySelector("#city").value;
+  const user_email = document.querySelector("#email").value;
 
   let productsID = []
 
+  /** Contact */
+  // const contact = {
+  //   firstName: user_firstname, 
+  //   lastName: user_lastname, 
+  //   address: user_address, 
+  //   city: user_city, 
+  //   email: user_email
+  // };
+
+  /**
+   * Cette boucle me permet de stocker les id des produis depuis le cart vers un tableau qui sera envoyé dans ma requête 
+   */
   for(item of cart){
     productsID.push(item.id)
   }
 
   console.log(productsID);
+  /**
+   * Cette requête avec fetch permet d'envoyer vers mon serveur les données du formulaire du client, un tableau avec les id des produits
+   */
 
-  fetch("http://localhost:3000/api/products/order", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json", 
-    },
-    body: JSON.stringify({
-      contact: {
-        firstName: firstname,
-        lastName: lastname,
-        address: address,
-        city: city,
-        email: email,
+  /**
+   * On utilise la méthode POST pour envoyer les données par notre requête
+   */
+  try {
+    const response = fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      products: productsID,
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP : ${response.status}`);
-      }
-      return response.json();
+      body: JSON.stringify({
+        // userId: "12345", // Exemple d'utilisateur
+        products: productsID, // Votre panier
+        totalPrice: totalPrice,
+        contact : {
+          firstName: user_firstname, 
+          lastName: user_lastname, 
+          address: user_address, 
+          city: user_city, 
+          email: user_email
+        },
+      }),
+    }).then(res=>{
+      if (!res.ok) {
+        throw new Error("Failed to create order");}
+      return res.json()
     })
-    .then((result) => {
-      window.
-      console.log("Commande réussie :", result);
-    })
-    .catch((error) => {
-      console.error("Erreur lors de l'envoi :", error);
-    });
+      .then(data=>{
+        const orderId = data.orderId;
+
+        console.log("Commande créée avec succès :", orderId);
+
+      window.location.href = `./confirmation.html?orderId=${orderId}`;
+      })
+
+  } catch (error) {
+    console.error("Erreur lors de la création de la commande :", error.message);
+  }
 })
 
 

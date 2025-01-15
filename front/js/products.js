@@ -75,6 +75,8 @@ if (productId) {
   fetch(newUrl)
     .then((response) => response.json())
     .then((data) => {
+
+        // On ajoute du texte dans la balise avec textContent
         title.textContent = data.name;
         price.textContent = data.price;
         description.textContent = data.description;
